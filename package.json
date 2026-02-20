@@ -1,6 +1,9 @@
 {
   "name": "laekhub-server",
   "private": true,
+  "scripts": {
+    "dev": "bun run helloWorld.ts"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },
