@@ -1,0 +1,83 @@
+generator client {
+    provider = "prisma-client-js" //สั่งให้ Prisma สร้างCode Typescript
+}
+
+datasource db {
+    provider = "postgresql" //ตรงนี้ระบุว่าเราจะใช้ฐานข้อมูลอะไร ในที่นี้คือ PostgreSQL
+}
+
+model User {
+    id String @id @default(uuid())
+    phoneNumber String
+    passWordHash String
+    displayName String
+    isVerified Boolean @default(false)
+    status UserStatus @default(ACTIVE) //เช็คว่าโดนแบนหรือป่าว
+    createdAt DateTime @default(now())
+    items Item[]
+    swipes Swipe[]
+    blocksGiven Block[] @relation("BlocksGiven")
+    blocksGot   Block[] @relation("BlocksGot")
+}
+
+enum UserStatus {
+    ACTIVE
+    SUSPENDED //ถูกระงับชั่วคราว
+    BANNED
+}
+
+model Item {
+    id String @id @default(uuid())
+    ownerId String
+    owner User @relation(fields: [ownerId], references: [id])
+
+    title String
+    description String
+    status ItemStatus @default(AVAILABLE)
+    createdAt DateTime @default(now())
+
+    swipes Swipe[]
+}
+
+enum ItemStatus {
+    AVAILABLE //ว่างอยู่ พร้อมแลกเปลี่ยน
+    SWAPPING //ผู้ใช้กำลังดีลกันอยู่
+    SWAPPED //ดีลเสร็จแล้ว
+}
+
+model Swipe {
+    id String @id @default(uuid())
+    swiperId String
+    swiper User @relation(fields: [swiperId], references: [id])
+    targetItemId String
+    trgetItem Item @relation(fields: [targetItemId], references: [id])
+    action SwipeAction
+    createdAt DateTime @default(now())
+
+    @@unique([swiperId, targetItemId]) //ไม่ให้ผู้ใช้คนเดียวกันสไลด์ที่เดิมซ้ำได้
+}
+
+enum SwipeAction {
+    LIKE
+    PASS
+}
+
+model Block {
+    
+    id      String   @id @default(uuid())
+    blockerId String
+    blocker   User     @relation("BlocksGiven", fields: [blockerId], references: [id]) // ✅
+    blocked   User     @relation("BlocksGot", fields: [blockedId], references: [id])   // ✅
+    blockedId String
+    createdAt DateTime @default(now())
+
+    @@unique([blockerId, blockedId]) //ไม่ให้ผู้ใช้คนเดียวกันบล็อกอีกครั้ง
+}
+
+model Report {
+  id             String   @id @default(uuid())
+  reporterId     String   // คนที่กดรีพอร์ต
+  reportedUserId String   // คนที่โดนรีพอร์ต
+  reason         String   // เหตุผล เช่น "ลงรูปของอนาจาร", "คุกคาม"
+  createdAt      DateTime @default(now())
+}

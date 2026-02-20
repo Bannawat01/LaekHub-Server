@@ -5,9 +5,14 @@
     "dev": "bun run helloWorld.ts"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "prisma": "^7.4.1"
   },
   "peerDependencies": {
     "typescript": "^5"
+  },
+  "dependencies": {
+    "@prisma/client": "^7.4.1",
+    "dotenv": "^17.3.1"
   }
 }
