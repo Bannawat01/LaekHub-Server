@@ -5,5 +5,6 @@ import { getAllUsers } from '../controller/user.controller';
 export const userRoutes = (prisma: PrismaClient) => {
     const router = Router();
     router.get('/', getAllUsers(prisma));
+    
     return router;
 }
