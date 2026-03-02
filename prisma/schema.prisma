@@ -33,6 +33,11 @@ model Item {
 
     title String
     description String
+
+    images String[] @default([])
+    category String?
+    condition String?  //มือหนึ่ง มือสอง
+
     status ItemStatus @default(AVAILABLE)
     createdAt DateTime @default(now())
 
