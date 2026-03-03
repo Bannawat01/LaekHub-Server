@@ -30,40 +30,50 @@ export const handleSwipe = (prisma: PrismaClient) =>async (req: AuthRequest,res:
 
         const swipe = await prisma.swipe.upsert({
             where: {
-                swiperId_targetItemId: {
-                    swiperId: swiperId,
-                    targetItemId: targetItemId
-                }
+                swiperId_targetItemId: { swiperId, targetItemId }
             },
-            create: {
-                swiperId: swiperId,
-                targetItemId: targetItemId,
-                action: action
-            },
-            update: {
-                action: action
-            }
+            update: { action },
+            create: { swiperId, targetItemId, action }
         })
 
         let isMatch = false;
+        let deal = null;
+
         if (action === 'LIKE') {
-            console.log(`กำลังเช็ค Match: หาว่า User ${targetItem.ownerId} เคย Like ของ User ${swiperId} หรือไม่?`);
             const reverseSwipe = await prisma.swipe.findFirst({
                 where: {
                     swiperId: targetItem.ownerId,
-                    targetItemId: swiperId,
+                    targetItem: {
+                        ownerId: swiperId
+                    },
                     action: 'LIKE'
                 }
             })
             if (reverseSwipe) {
                 isMatch = true;
+
+                deal = await prisma.deal.create({
+                    data: {
+                        requesterId: swiperId,
+                        receiverId: targetItem.ownerId,
+                        requesterItemId: targetItemId,
+                        receiverItemId: targetItemId,
+                        status: 'PENDING' //สถานะรอตอบรับ
+                    }
+                })
+
+                await prisma.item.updateMany({
+                    where: { id: { in: [targetItemId, reverseSwipe.targetItemId] } },
+                    data: {status: 'SWAPPING'}
+                })
             }
         }
 
         res.status(200).json({
             message: 'Swipe recorded successfully',
+            isMatch: isMatch,
             swipe: swipe,
-            isMatch: isMatch
+            deal: deal
         });
 
     }catch (error) {

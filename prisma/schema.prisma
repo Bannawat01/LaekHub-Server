@@ -55,7 +55,7 @@ model Swipe {
     swiperId String
     swiper User @relation(fields: [swiperId], references: [id])
     targetItemId String
-    targetItem   Item   @relation(fields: [targetItemId], references: [id])
+    targetItem   Item   @relation(fields: [targetItemId], references: [id]) 
     action SwipeAction
     createdAt DateTime @default(now())
 
