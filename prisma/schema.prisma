@@ -18,6 +18,8 @@ model User {
     swipes Swipe[]
     blocksGiven Block[] @relation("BlocksGiven")
     blocksGot   Block[] @relation("BlocksGot")
+    dealsAsRequester Deal[] @relation("DealRequester")
+    dealsAsReceiver  Deal[] @relation("DealReceiver")
 }
 
 enum UserStatus {
@@ -42,6 +44,8 @@ model Item {
     createdAt DateTime @default(now())
 
     swipes Swipe[]
+    dealsAsRequesterItem Deal[] @relation("DealRequesterItem")
+    dealsAsReceiverItem  Deal[] @relation("DealReceiverItem")
 }
 
 enum ItemStatus {
@@ -105,6 +109,11 @@ model Deal {
     receiverId      String
     requesterItemId String
     receiverItemId  String
+
+    requester    User @relation("DealRequester", fields: [requesterId], references: [id])
+    receiver     User @relation("DealReceiver", fields: [receiverId], references: [id])
+    requesterItem Item @relation("DealRequesterItem", fields: [requesterItemId], references: [id])
+    receiverItem  Item @relation("DealReceiverItem", fields: [receiverItemId], references: [id])
 
     status DealStatus @default(PENDING)
 

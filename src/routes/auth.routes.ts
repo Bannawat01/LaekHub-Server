@@ -5,6 +5,7 @@ import { authenticate, type AuthRequest } from "../middlewares/auth.middleware";
 
 export const authRoutes = (prisma: PrismaClient) => {
     const router = Router();
+    
     router.post('/register',register(prisma));
     router.post('/login',login(prisma));
     router.get('/me', authenticate, async (req: AuthRequest,res) => {

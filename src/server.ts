@@ -8,6 +8,7 @@ import { userRoutes } from './routes/user.routes';
 import { authRoutes } from './routes/auth.routes';
 import { itemRoutes } from './routes/item.routes';
 import { swipeRoutes } from './routes/swipe.routes';
+import { dealRoutes } from './routes/deal.routes';
 
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
@@ -23,6 +24,7 @@ app.use('/api/health', healthRoutes(prisma));
 app.use('/api/auth', authRoutes(prisma));
 app.use('/api/items', itemRoutes(prisma));
 app.use('/api/swipes', swipeRoutes(prisma));
+app.use('/api/deals', dealRoutes(prisma));
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
