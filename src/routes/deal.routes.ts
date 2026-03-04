@@ -1,6 +1,6 @@
 import type { PrismaClient } from "@prisma/client";
 import { Router } from "express";
-import { authenticate } from "../middlewares/auth.middleware";
+import { authenticate} from "../middlewares/auth.middleware";
 import { acceptDeal, getMyDeals, rejectDeal } from "../controller/deal.controller";
 
 export const dealRoutes = (prisma: PrismaClient) => {
@@ -13,3 +13,4 @@ export const dealRoutes = (prisma: PrismaClient) => {
     return router;
 
 }
+

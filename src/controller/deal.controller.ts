@@ -138,3 +138,67 @@ export const rejectDeal = (prisma: PrismaClient) => async (req:AuthRequest,res: 
         res.status(500).json({message: "Internal server error"});
     }
 }
+
+export const completeDeal = (prisma: PrismaClient) => async (req: AuthRequest,res: Response) => {
+    try {
+        const userId = req.user?.userId;
+        const {dealId} = req.params;
+        const { rating } = req.body;
+
+        if(typeof dealId !== 'string') return res.status(400).json({
+            message: "Invalid Deal ID"
+        })
+
+        if (rating && (rating < 1 || rating > 5)) {
+            return res.status(400).json({
+                message: "Rating must be between 1 and 5"
+            })
+        }
+
+        const deal = await prisma.deal.findUnique({
+            where: {id: dealId}
+        })
+        
+        if(!deal || deal.status !== 'ACCEPTED' && deal.status !== 'COMPLETED') {
+            return res.status(404).json({
+                message: "Deal not found or not in accepted status"
+            })
+        }
+
+        const isRequester = deal.requesterId === userId;
+        const isReceiver = deal.receiverId === userId;
+
+        if(!isRequester && !isReceiver) {
+            return res.status(403).json({
+                message: "Forbidden: You are not part of this deal"
+            })
+        }
+
+        const [updateDeal] = await prisma.$transaction([
+            prisma.deal.update({
+                where: {id: dealId},
+                data: {
+                    status: 'COMPLETED',
+                    ...(isRequester ? { requesterRating: rating } : { receiverRating: rating })
+                }
+            }),
+            prisma.item.updateMany({
+                where: {
+                    id: { in: [deal.requesterItemId, deal.receiverItemId] }
+                },
+                data: {
+                    status: 'SWAPPED'
+                }
+            })
+        ])
+
+        res.status(200).json({
+            message: "Deal marked as completed",
+            deal: updateDeal
+        })
+
+    }catch (error) {
+        console.error("Error completing deal:", error);
+        res.status(500).json({message: "Internal server error"});
+    }
+}
