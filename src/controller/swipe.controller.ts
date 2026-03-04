@@ -56,7 +56,7 @@ export const handleSwipe = (prisma: PrismaClient) =>async (req: AuthRequest,res:
                     data: {
                         requesterId: swiperId,
                         receiverId: targetItem.ownerId,
-                        requesterItemId: targetItemId,
+                        requesterItemId: reverseSwipe.targetItemId,
                         receiverItemId: targetItemId,
                         status: 'PENDING' //สถานะรอตอบรับ
                     }
