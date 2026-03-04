@@ -143,7 +143,7 @@ export const completeDeal = (prisma: PrismaClient) => async (req: AuthRequest,re
     try {
         const userId = req.user?.userId;
         const {dealId} = req.params;
-        const { rating } = req.body;
+        const { rating } = (req.body || {});
 
         if(typeof dealId !== 'string') return res.status(400).json({
             message: "Invalid Deal ID"
