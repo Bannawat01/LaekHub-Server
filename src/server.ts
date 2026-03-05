@@ -19,12 +19,13 @@ const PORT = 3000;
 app.use(cors());
 app.use(express.json());
 
-app.get('/api/users', userRoutes(prisma));
+app.use('/api/users', userRoutes(prisma));
 app.use('/api/health', healthRoutes(prisma));
 app.use('/api/auth', authRoutes(prisma));
 app.use('/api/items', itemRoutes(prisma));
 app.use('/api/swipes', swipeRoutes(prisma));
 app.use('/api/deals', dealRoutes(prisma));
+
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
