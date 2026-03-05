@@ -71,3 +71,32 @@ export const getAllItems = (prisma: PrismaClient) => async (req: Request, res: R
         res.status(500).json({ message: 'Error fetching items' });
     }
 }
+
+export const getMyItems = (prisma: PrismaClient) => async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userId = req.user?.userId;
+
+        if (!userId) {
+            res.status(401).json({ message: 'Unauthorized' });
+            return;
+        }
+        const items = await prisma.item.findMany({
+            where: {
+                ownerId: userId,
+            
+            },
+            orderBy: {
+                createdAt: 'desc'
+            }
+        });
+
+        res.status(200).json({
+            message: 'My items fetched successfully',
+            total: items.length,
+            items: items
+        });
+    } catch (error) {
+        console.error('Error fetching my items:', error);
+        res.status(500).json({ message: 'Error fetching my items' });
+    }
+}
